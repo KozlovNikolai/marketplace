@@ -1,4 +1,9 @@
 # marketplace
+
+Если интересно, как строился проект, то комиты можно посмотреть здесь:
+
+https://github.com/KozlovNikolai/test-task/tree/step5-authorization/tasks/backend/GO/gremiha3
+
 [Установка и запуск проекта.](#установка-и-запуск)
 
 # Установка и запуск
