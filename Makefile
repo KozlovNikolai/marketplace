@@ -15,9 +15,12 @@ install-goose:
 LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
 LOCAL_MIGRATION_DSN="host=localhost port=$(PG_PORT) dbname=$(PG_DATABASE_NAME) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
 
+# make create-new-migration name=fill_users
 create-new-migration:
-	$(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create create_table sql
-
+ifndef name
+	$(error name is not set)
+endif
+	$(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} create $(name) sql
 local-migration-status:
 	$(LOCAL_BIN)/goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v
 
