@@ -49,9 +49,9 @@ func NewInMemRepo() *inMemStore {
 		},
 		nextProductsID: 13,
 		orders: map[int]models.Order{
-			1: {ID: 1, UserID: 1, StateID: 1},
-			2: {ID: 2, UserID: 1, StateID: 1},
-			3: {ID: 3, UserID: 3, StateID: 1},
+			1: {ID: 1, UserID: 1, StateID: 2},
+			2: {ID: 2, UserID: 1, StateID: 2},
+			3: {ID: 3, UserID: 3, StateID: 2},
 		},
 		nextOrdersID: 4,
 		orderStates: map[int]models.OrderState{

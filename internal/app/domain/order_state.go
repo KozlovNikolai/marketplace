@@ -1,5 +1,11 @@
 package domain
 
+const (
+	CreatedOrderStateID = iota + 1
+	InProgressOrderStateID
+	DeliveryOrderStateID
+)
+
 // OrderState is a domain OrderState
 type OrderState struct {
 	id   int

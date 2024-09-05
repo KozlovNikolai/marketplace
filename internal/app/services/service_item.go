@@ -23,15 +23,19 @@ func NewItemService(repo IItemRepository) ItemService {
 	}
 }
 
-func (s ItemService) CreateItem(ctx context.Context, Item domain.Item) (domain.Item, error) {
-	return s.repo.CreateItem(ctx, Item)
+func (s ItemService) CreateItem(ctx context.Context, item domain.Item) (domain.Item, error) {
+	orderChannels[item.OrderID()] <- struct{}{}
+	return s.repo.CreateItem(ctx, item)
 }
 
-func (s ItemService) UpdateItem(ctx context.Context, Item domain.Item) (domain.Item, error) {
-	return s.repo.UpdateItem(ctx, Item)
+func (s ItemService) UpdateItem(ctx context.Context, item domain.Item) (domain.Item, error) {
+	orderChannels[item.OrderID()] <- struct{}{}
+	return s.repo.UpdateItem(ctx, item)
 }
 
 func (s ItemService) DeleteItem(ctx context.Context, id int) error {
+	item, _ := s.GetItem(ctx, id)
+	orderChannels[item.OrderID()] <- struct{}{}
 	return s.repo.DeleteItem(ctx, id)
 }
 

@@ -65,6 +65,11 @@ func (h HttpServer) CreateItem(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
 		return
 	}
+	// если статус заказа не "создан", то выходим
+	if order.StateID() != domain.CreatedOrderStateID {
+		c.JSON(http.StatusForbidden, gin.H{"order in progress now": domain.ErrOrderUpdNotAllowed.Error()})
+		return
+	}
 
 	insertedItem, err := h.itemService.CreateItem(c, item)
 	if err != nil {
@@ -192,7 +197,7 @@ func (h HttpServer) GetItems(c *gin.Context) {
 		return
 	}
 	// получаем пользователя
-	user, err := h.userService.GetUserByID(c, order.ID())
+	user, err := h.userService.GetUserByID(c, order.UserID())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error get user": err.Error()})
 		return

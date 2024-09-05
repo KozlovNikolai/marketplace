@@ -14,4 +14,5 @@ var (
 	ErrInvalidValue       = errors.New("invalid value")
 	ErrInvalidFormatEmail = errors.New("must be email type")
 	ErrInvalidLength      = errors.New("invalid length")
+	ErrOrderUpdNotAllowed = errors.New("order update is not allowed")
 )

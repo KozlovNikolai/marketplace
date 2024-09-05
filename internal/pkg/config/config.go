@@ -14,6 +14,7 @@ type Config struct {
 	StorageRO         string        `yaml:"storage_ro" env-required:"false"`
 	RepoType          string        `yaml:"repo_type" env-required:"true"`
 	TokenTimeDuration time.Duration `yaml:"token_time_duration" env-required:"true"`
+	OrderDurationTime time.Duration `yaml:"order_time_duration" env-required:"true"`
 	HTTPServer        `yaml:"http_server"`
 }
 
