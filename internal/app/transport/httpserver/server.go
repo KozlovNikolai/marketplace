@@ -164,22 +164,6 @@ func (s *Server) Run() {
 		WriteTimeout: config.Cfg.Timeout,
 		IdleTimeout:  config.Cfg.IdleTimout,
 	}
-	// go func(ctx context.Context) {
-	// 	ticker := time.NewTicker(time.Minute)
-	// 	defer ticker.Stop()
-	// 	for {
-	// 		select {
-	// 		case <-ticker.C:
-	// 			log.Println("Cleaning expired carts")
-	// 			err := cartRepo.CleanExpiredCarts(ctx, time.Minute)
-	// 			if err != nil {
-	// 				log.Printf("cartRepo.CleanExpiredCarts failed: %v", err)
-	// 			}
-	// 		case <-ctx.Done():
-	// 			return
-	// 		}
-	// 	}
-	// }(context.TODO())
 
 	// listen to OS signals and gracefully shutdown HTTP server
 	stopped := make(chan struct{})
