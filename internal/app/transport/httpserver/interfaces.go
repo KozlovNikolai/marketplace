@@ -1,5 +1,3 @@
-//go:generate mockery
-
 package httpserver
 
 import (
