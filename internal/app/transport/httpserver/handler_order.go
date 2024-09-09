@@ -85,7 +85,7 @@ func (h HttpServer) GetOrder(c *gin.Context) {
 	}
 
 	if userCtx.ID() != order.UserID() && userCtx.Role() != config.AdminRole {
-		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUser.Error()})
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h HttpServer) GetOrders(c *gin.Context) {
 		return
 	}
 	if userCtx.ID() != userid && userCtx.Role() != config.AdminRole {
-		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUser.Error()})
 		return
 	}
 	orders, err := h.orderService.GetOrders(c, limit, offset, userid)

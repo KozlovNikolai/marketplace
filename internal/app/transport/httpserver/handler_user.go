@@ -53,7 +53,7 @@ func (h HttpServer) GetUser(c *gin.Context) {
 		}
 		// auth login
 		if userCtx.Login() != domainUser.Login() && userCtx.Role() != config.AdminRole {
-			c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"invalid user login or role": domain.ErrInvalidUser.Error()})
 			return
 		}
 		response := toResponseUser(domainUser)
@@ -69,7 +69,7 @@ func (h HttpServer) GetUser(c *gin.Context) {
 		}
 		// auth user id
 		if userCtx.ID() != userID && userCtx.Role() != config.AdminRole {
-			c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserID.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUser.Error()})
 			return
 		}
 		user, err := h.userService.GetUserByID(c, userID)

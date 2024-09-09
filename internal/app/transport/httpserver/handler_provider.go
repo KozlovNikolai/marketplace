@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,8 +39,9 @@ func (h HttpServer) CreateProvider(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error creating domain provider": err.Error()})
 		return
 	}
-
+	fmt.Printf("domain Provider in service %v\n", provider)
 	insertedProvider, err := h.providerService.CreateProvider(c, provider)
+	fmt.Printf("in handler err %v\n", err)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error DB saving provider": err.Error()})
 		return

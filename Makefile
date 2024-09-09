@@ -37,3 +37,17 @@ cover:
 	go tool cover -html=coverage.out
 	rm coverage.out
 
+.PHONY: mockgen
+mockgen:
+	mockgen --source=internal/app/transport/httpserver/interfaces.go \
+	--destination=internal/app/transport/httpserver/mocks/mock_interfaces.go
+
+.PHONY: mockery
+mockery:
+	mockery --name=IProviderService \
+	--dir=./internal/app/transport/httpserver \
+	--output=./internal/app/transport/httpserver/mocks
+
+test20:
+	go test -v -count=20 ./...
+

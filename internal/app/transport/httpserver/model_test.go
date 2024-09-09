@@ -165,9 +165,7 @@ func TestProviderRequestValidate(t *testing.T) {
 				Name:   "Microsoft",
 				Origin: "Russia",
 			},
-			wantErr:       false,
-			expectedField: []string{},
-			expectedTag:   []string{},
+			wantErr: false,
 		},
 		{
 			name: "empty provider name",

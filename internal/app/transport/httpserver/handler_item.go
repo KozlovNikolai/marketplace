@@ -62,12 +62,12 @@ func (h HttpServer) CreateItem(c *gin.Context) {
 	}
 	// если пользователь не владелец и не админ, то выходим
 	if userCtx.ID() != user.ID() && userCtx.Role() != config.AdminRole {
-		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": domain.ErrInvalidUser.Error()})
 		return
 	}
 	// если статус заказа не "создан", то выходим
 	if order.StateID() != domain.CreatedOrderStateID {
-		c.JSON(http.StatusForbidden, gin.H{"order in progress now": domain.ErrOrderUpdNotAllowed.Error()})
+		c.JSON(http.StatusForbidden, gin.H{"error": domain.ErrEditDenied.Error()})
 		return
 	}
 
@@ -129,7 +129,7 @@ func (h HttpServer) GetItem(c *gin.Context) {
 	}
 	// если пользователь не владелец и не админ, то выходим
 	if userCtx.ID() != user.ID() && userCtx.Role() != config.AdminRole {
-		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUser.Error()})
 		return
 	}
 	response := toResponseItem(item)
@@ -204,7 +204,7 @@ func (h HttpServer) GetItems(c *gin.Context) {
 	}
 	// если пользователь не владелец и не админ, то выходим
 	if userCtx.ID() != user.ID() && userCtx.Role() != config.AdminRole {
-		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUserLogin.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"invalid user id or role": domain.ErrInvalidUser.Error()})
 		return
 	}
 	items, err := h.itemService.GetItems(c, limit, offset, orderid)
