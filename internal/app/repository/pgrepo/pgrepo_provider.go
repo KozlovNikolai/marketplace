@@ -49,10 +49,7 @@ func (r *ProviderRepo) CreateProvider(ctx context.Context, provider domain.Provi
 		return domain.Provider{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	domainProvider, err := providerToDomain(insertedProvider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(insertedProvider)
 
 	return domainProvider, nil
 }
@@ -127,10 +124,7 @@ func (r *ProviderRepo) GetProviders(ctx context.Context, limit, offset int) ([]d
 	// мапим модель в домен
 	domainProviders := make([]domain.Provider, len(providers))
 	for i, provider := range providers {
-		domainProvider, err := providerToDomain(provider)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain provider: %w", err)
-		}
+		domainProvider := providerToDomain(provider)
 
 		domainProviders[i] = domainProvider
 	}
@@ -139,10 +133,6 @@ func (r *ProviderRepo) GetProviders(ctx context.Context, limit, offset int) ([]d
 
 // GetProvider implements service.IProviderRepository.
 func (r *ProviderRepo) GetProvider(ctx context.Context, id int) (domain.Provider, error) {
-	if id == 0 {
-		return domain.Provider{}, fmt.Errorf("%w: id", domain.ErrRequired)
-	}
-
 	// SQL-запрос на получение данных Поставщика по ID
 	query := `
 SELECT id, name, origin
@@ -153,13 +143,10 @@ WHERE id = $1
 	// Выполняем запрос и сканируем результат в структуру Provider
 	err := r.db.RO.QueryRow(ctx, query, id).Scan(&provider.ID, &provider.Name, &provider.Origin)
 	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to get provider by id: %w", err)
+		return domain.Provider{}, domain.ErrNotFound
 	}
 
-	domainProvider, err := providerToDomain(provider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(provider)
 
 	return domainProvider, nil
 }
@@ -187,16 +174,13 @@ func (r *ProviderRepo) UpdateProvider(ctx context.Context, provider domain.Provi
 	err = tx.QueryRow(ctx, query, dbProvider.Name, dbProvider.Origin, dbProvider.ID).
 		Scan(&updatedProvider.ID, &updatedProvider.Name, &updatedProvider.Origin)
 	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to update provider: %w", err)
+		return domain.Provider{}, domain.ErrNotFound
 	}
 	// Фиксация транзакции
 	if err := tx.Commit(ctx); err != nil {
 		return domain.Provider{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	domainProvider, err := providerToDomain(updatedProvider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(updatedProvider)
 
 	return domainProvider, nil
 }

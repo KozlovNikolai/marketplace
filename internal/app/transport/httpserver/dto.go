@@ -15,7 +15,7 @@ func toResponseProvider(provider domain.Provider) ProviderResponse {
 	}
 }
 
-func toDomainProvider(provider ProviderRequest) (domain.Provider, error) {
+func toDomainProvider(provider ProviderRequest) domain.Provider {
 	return domain.NewProvider(domain.NewProviderData{
 		Name:   provider.Name,
 		Origin: provider.Origin,

@@ -15,4 +15,5 @@ var (
 	ErrInvalidUser           = errors.New("user data is invalid")
 	ErrAccessDenied          = errors.New("access denied")
 	ErrEditDenied            = errors.New("edit denied")
+	ErrDbCreationFailed      = errors.New("data base creation failed")
 )

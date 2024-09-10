@@ -1,12 +1,9 @@
 package httpserver
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/KozlovNikolai/marketplace/internal/app/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,16 +31,11 @@ func (h HttpServer) CreateProvider(c *gin.Context) {
 		return
 	}
 
-	provider, err := toDomainProvider(providerRequest)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error creating domain provider": err.Error()})
-		return
-	}
-	fmt.Printf("domain Provider in service %v\n", provider)
+	provider := toDomainProvider(providerRequest)
 	insertedProvider, err := h.providerService.CreateProvider(c, provider)
-	fmt.Printf("in handler err %v\n", err)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error DB saving provider": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error service provider": err.Error()})
 		return
 	}
 
@@ -67,20 +59,19 @@ func (h HttpServer) GetProvider(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-provider-id": err.Error()})
 		return
 	}
-
+	if providerID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id lower or equal zero"})
+		return
+	}
 	provider, err := h.providerService.GetProvider(c, providerID)
 	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"provider-not-found": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error-get-provider": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"provider": err.Error()})
 		return
 	}
 
 	response := toResponseProvider(provider)
 
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // GetProviders is ...
@@ -110,11 +101,11 @@ func (h HttpServer) GetProviders(c *gin.Context) {
 		return
 	}
 	if limit < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"limit-must-be-greater-then-zero": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "limit-must-be-greater-then-zero"})
 		return
 	}
 	if offset < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"offset-must-be-greater-then-zero": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "offset-must-be-greater-or-equal-then-zero"})
 		return
 	}
 

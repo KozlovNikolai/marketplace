@@ -13,7 +13,7 @@ func domainToProvider(provider domain.Provider) models.Provider {
 	}
 }
 
-func providerToDomain(provider models.Provider) (domain.Provider, error) {
+func providerToDomain(provider models.Provider) domain.Provider {
 	return domain.NewProvider(domain.NewProviderData{
 		ID:     provider.ID,
 		Name:   provider.Name,

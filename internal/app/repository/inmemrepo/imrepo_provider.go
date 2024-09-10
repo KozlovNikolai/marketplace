@@ -34,10 +34,7 @@ func (repo *ProviderRepo) CreateProvider(_ context.Context, provider domain.Prov
 	// сохраняем
 	repo.db.providers[dbProvider.ID] = dbProvider
 	// мапим модель в домен
-	domainProvider, err := providerToDomain(dbProvider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(dbProvider)
 	return domainProvider, nil
 }
 
@@ -64,10 +61,8 @@ func (repo *ProviderRepo) GetProvider(_ context.Context, id int) (domain.Provide
 	if !exists {
 		return domain.Provider{}, fmt.Errorf("provider with id %d - %w", id, domain.ErrNotFound)
 	}
-	domainProvider, err := providerToDomain(provider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(provider)
+
 	return domainProvider, nil
 }
 
@@ -90,10 +85,8 @@ func (repo *ProviderRepo) GetProviders(_ context.Context, limit int, offset int)
 	// мапим массив моделей в массив доменов
 	domainProviders := make([]domain.Provider, len(providers))
 	for i, provider := range providers {
-		domainProvider, err := providerToDomain(provider)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain User: %w", err)
-		}
+		domainProvider := providerToDomain(provider)
+
 		domainProviders[i] = domainProvider
 	}
 	return domainProviders, nil
@@ -111,9 +104,6 @@ func (repo *ProviderRepo) UpdateProvider(_ context.Context, provider domain.Prov
 	}
 	// обновляем запись
 	repo.db.providers[dbProvider.ID] = dbProvider
-	domainProvider, err := providerToDomain(dbProvider)
-	if err != nil {
-		return domain.Provider{}, fmt.Errorf("failed to create domain provider: %w", err)
-	}
+	domainProvider := providerToDomain(dbProvider)
 	return domainProvider, nil
 }

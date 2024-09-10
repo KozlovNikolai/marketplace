@@ -49,7 +49,7 @@ func NewServer() *Server {
 	case "postgres":
 		pgDB, err := pg.Dial(config.Cfg.StorageWR, config.Cfg.StorageRO)
 		if err != nil {
-			logger.Error("pg.Dial failed: %w", zap.Error(err))
+			logger.Fatal("pg.Dial failed: %w", zap.Error(err))
 		}
 		providerRepo = pgrepo.NewProviderRepo(pgDB)
 		productRepo = pgrepo.NewProductRepo(pgDB)

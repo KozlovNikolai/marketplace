@@ -15,12 +15,12 @@ type NewProviderData struct {
 }
 
 // NewProvider creates a new Provider.
-func NewProvider(data NewProviderData) (Provider, error) {
+func NewProvider(data NewProviderData) Provider {
 	return Provider{
 		id:     data.ID,
 		name:   data.Name,
 		origin: data.Origin,
-	}, nil
+	}
 }
 
 // ID returns the Provider ID.
