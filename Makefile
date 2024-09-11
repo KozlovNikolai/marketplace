@@ -44,7 +44,7 @@ mockgen:
 
 .PHONY: mockery
 mockery:
-	mockery --name=ITokenService \
+	mockery --name=IProductService \
 	--dir=./internal/app/transport/httpserver \
 	--output=./internal/app/transport/httpserver/mocks
 

@@ -19,14 +19,14 @@ type NewProductData struct {
 }
 
 // NewProduct is ...
-func NewProduct(data NewProductData) (Product, error) {
+func NewProduct(data NewProductData) Product {
 	return Product{
 		id:         data.ID,
 		name:       data.Name,
 		providerID: data.ProviderID,
 		price:      data.Price,
 		stock:      data.Stock,
-	}, nil
+	}
 }
 
 func (p Product) ID() int {

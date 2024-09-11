@@ -38,10 +38,7 @@ func (repo *ProductRepo) CreateProduct(_ context.Context, product domain.Product
 	// сохраняем
 	repo.db.products[dbProduct.ID] = dbProduct
 	// мапим модель в домен
-	domainProduct, err := productToDomain(dbProduct)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain Product: %w", err)
-	}
+	domainProduct := productToDomain(dbProduct)
 	return domainProduct, nil
 }
 
@@ -68,10 +65,7 @@ func (repo *ProductRepo) GetProduct(_ context.Context, id int) (domain.Product, 
 	if !exists {
 		return domain.Product{}, fmt.Errorf("product with id %d - %w", id, domain.ErrNotFound)
 	}
-	domainProduct, err := productToDomain(Product)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain Product: %w", err)
-	}
+	domainProduct := productToDomain(Product)
 	return domainProduct, nil
 }
 
@@ -94,10 +88,7 @@ func (repo *ProductRepo) GetProducts(_ context.Context, limit int, offset int) (
 	// мапим массив моделей в массив доменов
 	domainproducts := make([]domain.Product, len(products))
 	for i, product := range products {
-		domainproduct, err := productToDomain(product)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain User: %w", err)
-		}
+		domainproduct := productToDomain(product)
 		domainproducts[i] = domainproduct
 	}
 	return domainproducts, nil
@@ -115,9 +106,6 @@ func (repo *ProductRepo) UpdateProduct(_ context.Context, Product domain.Product
 	}
 	// обновляем запись
 	repo.db.products[dbProduct.ID] = dbProduct
-	domainProduct, err := productToDomain(dbProduct)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain Product: %w", err)
-	}
+	domainProduct := productToDomain(dbProduct)
 	return domainProduct, nil
 }

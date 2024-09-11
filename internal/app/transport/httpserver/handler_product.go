@@ -1,11 +1,9 @@
 package httpserver
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/KozlovNikolai/marketplace/internal/app/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,23 +23,21 @@ func (h HttpServer) CreateProduct(c *gin.Context) {
 	var productRequest ProductRequest
 	if err := c.ShouldBindJSON(&productRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-json": err.Error()})
+
 		return
 	}
 
 	if err := productRequest.Validate(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-request": err.Error()})
+
 		return
 	}
 
-	product, err := toDomainProduct(productRequest)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error creating domain product": err.Error()})
-		return
-	}
+	product := toDomainProduct(productRequest)
 
 	insertedproduct, err := h.productService.CreateProduct(c, product)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error DB saving product": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error DB saving product": err.Error()})
 		return
 	}
 
@@ -64,20 +60,19 @@ func (h HttpServer) GetProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-product-id": err.Error()})
 		return
 	}
-
+	if productID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id lower or equal zero"})
+		return
+	}
 	product, err := h.productService.GetProduct(c, productID)
 	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"product-not-found": err.Error()})
-			return
-		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error-get-product": err.Error()})
 		return
 	}
 
 	response := toResponseProduct(product)
 
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // GetProducts is ...
@@ -111,7 +106,7 @@ func (h HttpServer) GetProducts(c *gin.Context) {
 		return
 	}
 	if offset < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"offset-must-be-greater-then-zero": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"offset-must-be-greater-or-equal-then-zero": ""})
 		return
 	}
 

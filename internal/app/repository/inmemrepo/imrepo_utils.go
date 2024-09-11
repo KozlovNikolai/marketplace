@@ -31,7 +31,7 @@ func domainToProduct(product domain.Product) models.Product {
 	}
 }
 
-func productToDomain(product models.Product) (domain.Product, error) {
+func productToDomain(product models.Product) domain.Product {
 	return domain.NewProduct(domain.NewProductData{
 		ID:         product.ID,
 		Name:       product.Name,

@@ -33,7 +33,7 @@ func toResponseProduct(product domain.Product) ProductResponse {
 	}
 }
 
-func toDomainProduct(product ProductRequest) (domain.Product, error) {
+func toDomainProduct(product ProductRequest) domain.Product {
 	return domain.NewProduct(domain.NewProductData{
 		Name:       product.Name,
 		ProviderID: product.ProviderID,

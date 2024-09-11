@@ -52,11 +52,7 @@ func (r *ProductRepo) CreateProduct(ctx context.Context, product domain.Product)
 		return domain.Product{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	domainProduct, err := productToDomain(insertedProduct)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain product: %w", err)
-	}
-
+	domainProduct := productToDomain(insertedProduct)
 	return domainProduct, nil
 }
 
@@ -135,10 +131,7 @@ func (r *ProductRepo) GetProducts(ctx context.Context, limit, offset int) ([]dom
 	// мапим модель в домен
 	domainProducts := make([]domain.Product, len(products))
 	for i, product := range products {
-		domainProduct, err := productToDomain(product)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain product: %w", err)
-		}
+		domainProduct := productToDomain(product)
 
 		domainProducts[i] = domainProduct
 	}
@@ -147,9 +140,6 @@ func (r *ProductRepo) GetProducts(ctx context.Context, limit, offset int) ([]dom
 
 // GetProduct implements service.IProductRepository.
 func (r *ProductRepo) GetProduct(ctx context.Context, id int) (domain.Product, error) {
-	if id == 0 {
-		return domain.Product{}, fmt.Errorf("%w: id", domain.ErrRequired)
-	}
 
 	// SQL-запрос на получение данных Товара по ID
 	query := `
@@ -169,10 +159,7 @@ WHERE id = $1
 		return domain.Product{}, fmt.Errorf("failed to get product by id: %w", err)
 	}
 
-	domainProduct, err := productToDomain(product)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain product: %w", err)
-	}
+	domainProduct := productToDomain(product)
 
 	return domainProduct, nil
 }
@@ -216,10 +203,7 @@ func (r *ProductRepo) UpdateProduct(ctx context.Context, product domain.Product)
 	if err := tx.Commit(ctx); err != nil {
 		return domain.Product{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	domainProduct, err := productToDomain(updatedProduct)
-	if err != nil {
-		return domain.Product{}, fmt.Errorf("failed to create domain product: %w", err)
-	}
+	domainProduct := productToDomain(updatedProduct)
 
 	return domainProduct, nil
 }
