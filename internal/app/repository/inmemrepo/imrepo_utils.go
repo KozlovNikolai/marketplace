@@ -47,7 +47,7 @@ func domainToOrderState(orderState domain.OrderState) models.OrderState {
 	}
 }
 
-func orderStateToDomain(orderState models.OrderState) (domain.OrderState, error) {
+func orderStateToDomain(orderState models.OrderState) domain.OrderState {
 	return domain.NewOrderState(domain.NewOrderStateData{
 		ID:   orderState.ID,
 		Name: orderState.Name,
@@ -66,7 +66,7 @@ func domainToUser(user domain.User) models.User {
 	}
 }
 
-func userToDomain(user models.User) (domain.User, error) {
+func userToDomain(user models.User) domain.User {
 	return domain.NewUser(domain.NewUserData{
 		ID:        user.ID,
 		Login:     user.Login,

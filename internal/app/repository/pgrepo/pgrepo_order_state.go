@@ -48,10 +48,7 @@ func (o *OrderStateRepo) CreateOrderState(ctx context.Context, orderState domain
 		return domain.OrderState{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	domainOrderState, err := orderStateToDomain(insertedOrderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(insertedOrderState)
 
 	return domainOrderState, nil
 }
@@ -126,10 +123,7 @@ func (o *OrderStateRepo) GetOrderStates(ctx context.Context, limit, offset int) 
 	// мапим модель в домен
 	domainOrderStates := make([]domain.OrderState, len(orderStates))
 	for i, orderState := range orderStates {
-		domainOrderState, err := orderStateToDomain(orderState)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain OrderState: %w", err)
-		}
+		domainOrderState := orderStateToDomain(orderState)
 
 		domainOrderStates[i] = domainOrderState
 	}
@@ -138,9 +132,6 @@ func (o *OrderStateRepo) GetOrderStates(ctx context.Context, limit, offset int) 
 
 // GetOrderState implements service.IOrderStateRepository.
 func (o *OrderStateRepo) GetOrderState(ctx context.Context, id int) (domain.OrderState, error) {
-	if id == 0 {
-		return domain.OrderState{}, fmt.Errorf("%w: id", domain.ErrRequired)
-	}
 
 	// SQL-запрос на получение данных типа заказа по ID
 	query := `
@@ -155,10 +146,7 @@ WHERE id = $1
 		return domain.OrderState{}, fmt.Errorf("failed to get OrderState by id: %w", err)
 	}
 
-	domainOrderState, err := orderStateToDomain(orderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(orderState)
 
 	return domainOrderState, nil
 }
@@ -192,10 +180,7 @@ func (o *OrderStateRepo) UpdateOrderState(ctx context.Context, orderState domain
 	if err := tx.Commit(ctx); err != nil {
 		return domain.OrderState{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	domainOrderState, err := orderStateToDomain(updatedOrderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(updatedOrderState)
 
 	return domainOrderState, nil
 }

@@ -33,15 +33,11 @@ func (h HttpServer) CreateOrderState(c *gin.Context) {
 		return
 	}
 
-	orderState, err := toDomainOrderState(orderStateRequest)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error creating domain orderState": err.Error()})
-		return
-	}
+	orderState := toDomainOrderState(orderStateRequest)
 
 	insertedOrderState, err := h.orderStateService.CreateOrderState(c, orderState)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error DB saving orderState": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error service OrderState": err.Error()})
 		return
 	}
 
@@ -66,13 +62,14 @@ func (h HttpServer) GetOrderState(c *gin.Context) {
 		return
 	}
 
+	if orderStateID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id lower or equal zero"})
+		return
+	}
+
 	orderState, err := h.orderStateService.GetOrderState(c, orderStateID)
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"orderState-not-found": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error-get-orderState": err.Error()})
+	if errors.Is(err, domain.ErrNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"orderState": err.Error()})
 		return
 	}
 
@@ -113,7 +110,7 @@ func (h HttpServer) GetOrderStates(c *gin.Context) {
 		return
 	}
 	if offset < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"offset-must-be-greater-then-zero": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"offset-must-be-greater-or-equal-then-zero": ""})
 		return
 	}
 

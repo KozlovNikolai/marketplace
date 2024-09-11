@@ -69,14 +69,11 @@ func (s TokenService) GetUser(token string) (domain.User, error) {
 	if !t.Valid {
 		return domain.User{}, errors.New("invalid token")
 	}
-	user, err := userClaimsToDomainUser(userClaims)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to convert user claims to domain user: %w", err)
-	}
+	user := userClaimsToDomainUser(userClaims)
 	return user, nil
 }
 
-func userClaimsToDomainUser(claims UserClaims) (domain.User, error) {
+func userClaimsToDomainUser(claims UserClaims) domain.User {
 	return domain.NewUser(domain.NewUserData{
 		ID:    claims.AuthID,
 		Login: claims.AuthLogin,

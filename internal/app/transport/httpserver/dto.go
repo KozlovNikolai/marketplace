@@ -50,7 +50,7 @@ func toResponseOrderState(orderState domain.OrderState) OrderStateResponse {
 	}
 }
 
-func toDomainOrderState(orderState OrderStateRequest) (domain.OrderState, error) {
+func toDomainOrderState(orderState OrderStateRequest) domain.OrderState {
 	return domain.NewOrderState(domain.NewOrderStateData{
 		Name: orderState.Name,
 	})
@@ -103,7 +103,7 @@ func toResponseUser(user domain.User) UserResponse {
 	}
 }
 
-func toDomainUser(user UserRequest) (domain.User, error) {
+func toDomainUser(user UserRequest) domain.User {
 	return domain.NewUser(domain.NewUserData{
 		Login:    user.Login,
 		Password: user.Password,

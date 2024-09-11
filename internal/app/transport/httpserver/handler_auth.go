@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,38 +21,29 @@ func (h HttpServer) SignUp(c *gin.Context) {
 	var userRequest UserRequest
 	var err error
 	if err = c.ShouldBindJSON(&userRequest); err != nil {
-		log.Println("invalid-json")
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-json": err.Error()})
+
 		return
 	}
 
 	if err = userRequest.Validate(); err != nil {
-		log.Println("invalid-request")
 		c.JSON(http.StatusBadRequest, gin.H{"invalid-request": err.Error()})
 		return
 	}
 
 	userRequest.Password, err = hashPassword(userRequest.Password)
 	if err != nil {
-		log.Println("error-hashing-password")
-		c.JSON(http.StatusUnauthorized, gin.H{"error-hashing-password": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error-hashing-password": err.Error()})
 		return
 	}
 
-	domainUser, err := toDomainUser(userRequest)
-	if err != nil {
-		log.Println("error-to-create-domain-user")
-		c.JSON(http.StatusInternalServerError, gin.H{"error-to-create-domain-user": err.Error()})
-		return
-	}
+	domainUser := toDomainUser(userRequest)
 
 	createdUser, err := h.userService.CreateUser(c, domainUser)
 	if err != nil {
-		log.Println("error DB saving user")
-		c.JSON(http.StatusBadRequest, gin.H{"error DB saving user": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error service User": err.Error()})
 		return
 	}
-
 	response := toResponseUser(createdUser)
 	c.JSON(http.StatusCreated, response)
 }
@@ -88,7 +78,7 @@ func (h HttpServer) SignIn(c *gin.Context) {
 	}
 
 	if !checkPasswordHash(userRequest.Password, domainUser.Password()) {
-		c.JSON(http.StatusBadRequest, gin.H{"invalid-password": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid-password"})
 		return
 	}
 

@@ -16,4 +16,5 @@ var (
 	ErrAccessDenied          = errors.New("access denied")
 	ErrEditDenied            = errors.New("edit denied")
 	ErrDbCreationFailed      = errors.New("data base creation failed")
+	ErrFailure               = errors.New("failure")
 )

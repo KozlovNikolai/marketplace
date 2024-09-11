@@ -35,10 +35,7 @@ func (repo *OrderStateRepo) CreateOrderState(_ context.Context, orderState domai
 	// сохраняем
 	repo.db.orderStates[dbOrderState.ID] = dbOrderState
 	// мапим модель в домен
-	domainOrderState, err := orderStateToDomain(dbOrderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(dbOrderState)
 	return domainOrderState, nil
 }
 
@@ -65,10 +62,7 @@ func (repo *OrderStateRepo) GetOrderState(_ context.Context, id int) (domain.Ord
 	if !exists {
 		return domain.OrderState{}, fmt.Errorf("OrderState with id %d - %w", id, domain.ErrNotFound)
 	}
-	domainOrderState, err := orderStateToDomain(orderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(orderState)
 	return domainOrderState, nil
 }
 
@@ -91,10 +85,8 @@ func (repo *OrderStateRepo) GetOrderStates(_ context.Context, limit int, offset 
 	// мапим массив моделей в массив доменов
 	domainorderStates := make([]domain.OrderState, len(orderStates))
 	for i, orderState := range orderStates {
-		domainorderState, err := orderStateToDomain(orderState)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain User: %w", err)
-		}
+		domainorderState := orderStateToDomain(orderState)
+
 		domainorderStates[i] = domainorderState
 	}
 	return domainorderStates, nil
@@ -112,9 +104,7 @@ func (repo *OrderStateRepo) UpdateOrderState(_ context.Context, orderState domai
 	}
 	// обновляем запись
 	repo.db.orderStates[dbOrderState.ID] = dbOrderState
-	domainOrderState, err := orderStateToDomain(dbOrderState)
-	if err != nil {
-		return domain.OrderState{}, fmt.Errorf("failed to create domain OrderState: %w", err)
-	}
+	domainOrderState := orderStateToDomain(dbOrderState)
+
 	return domainOrderState, nil
 }

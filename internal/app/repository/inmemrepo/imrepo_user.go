@@ -42,10 +42,8 @@ func (repo *UserRepo) CreateUser(ctx context.Context, user domain.User) (domain.
 	log.Printf("mapUser = %v\n", repo.db.users[dbUser.ID])
 
 	// мапим модель в домен
-	domainUser, err := userToDomain(repo.db.users[dbUser.ID])
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(repo.db.users[dbUser.ID])
+
 	log.Println(domainUser)
 	return domainUser, nil
 }
@@ -70,10 +68,7 @@ func (repo *UserRepo) GetUsers(_ context.Context, limit int, offset int) ([]doma
 	// мапим массив моделей в массив доменов
 	domainUsers := make([]domain.User, len(users))
 	for i, user := range users {
-		domainUser, err := userToDomain(user)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain User: %w", err)
-		}
+		domainUser := userToDomain(user)
 		domainUsers[i] = domainUser
 	}
 	return domainUsers, nil
@@ -87,10 +82,7 @@ func (repo *UserRepo) GetUserByID(_ context.Context, id int) (domain.User, error
 	if !exists {
 		return domain.User{}, fmt.Errorf("user with id %d - %w", id, domain.ErrNotFound)
 	}
-	domainUser, err := userToDomain(user)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(user)
 	return domainUser, nil
 }
 
@@ -108,10 +100,7 @@ func (repo *UserRepo) GetUserByLogin(_ context.Context, login string) (domain.Us
 	if dbUser.ID == 0 {
 		return domain.User{}, fmt.Errorf("user with login %s - %w", login, domain.ErrNotFound)
 	}
-	domainUser, err := userToDomain(dbUser)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(dbUser)
 	return domainUser, nil
 }
 
@@ -127,10 +116,7 @@ func (repo *UserRepo) UpdateUser(_ context.Context, user domain.User) (domain.Us
 	}
 	// обновляем запись
 	repo.db.users[dbUser.ID] = dbUser
-	domainUser, err := userToDomain(dbUser)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(dbUser)
 	return domainUser, nil
 }
 

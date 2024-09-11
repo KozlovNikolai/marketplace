@@ -52,10 +52,7 @@ func (u *UserRepo) CreateUser(ctx context.Context, User domain.User) (domain.Use
 		return domain.User{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	domainUser, err := userToDomain(insertedUser)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(insertedUser)
 
 	return domainUser, nil
 }
@@ -131,11 +128,7 @@ func (u *UserRepo) GetUsers(ctx context.Context, limit, offset int) ([]domain.Us
 	// мапим модель в домен
 	domainUsers := make([]domain.User, len(users))
 	for i, user := range users {
-		domainUser, err := userToDomain(user)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create domain User: %w", err)
-		}
-
+		domainUser := userToDomain(user)
 		domainUsers[i] = domainUser
 	}
 	return domainUsers, nil
@@ -143,9 +136,6 @@ func (u *UserRepo) GetUsers(ctx context.Context, limit, offset int) ([]domain.Us
 
 // GetUserByID implements service.IUserRepository.
 func (u *UserRepo) GetUserByID(ctx context.Context, id int) (domain.User, error) {
-	if id == 0 {
-		return domain.User{}, fmt.Errorf("%w: id", domain.ErrRequired)
-	}
 
 	// SQL-запрос на получение данных Пользователя по ID
 	query := `
@@ -161,11 +151,7 @@ func (u *UserRepo) GetUserByID(ctx context.Context, id int) (domain.User, error)
 		return domain.User{}, fmt.Errorf("failed to get User by id: %w", err)
 	}
 
-	domainUser, err := userToDomain(user)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
-
+	domainUser := userToDomain(user)
 	return domainUser, nil
 }
 
@@ -189,10 +175,7 @@ func (u *UserRepo) GetUserByLogin(ctx context.Context, login string) (domain.Use
 		return domain.User{}, fmt.Errorf("failed to get User by login: %w", err)
 	}
 
-	domainUser, err := userToDomain(user)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(user)
 
 	return domainUser, nil
 }
@@ -232,10 +215,7 @@ func (u *UserRepo) UpdateUser(ctx context.Context, user domain.User) (domain.Use
 	if err := tx.Commit(ctx); err != nil {
 		return domain.User{}, fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	domainUser, err := userToDomain(updatedUser)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("failed to create domain User: %w", err)
-	}
+	domainUser := userToDomain(updatedUser)
 
 	return domainUser, nil
 }

@@ -16,73 +16,70 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateProvider(t *testing.T) {
+func TestCreateOrderState(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockProviderService := mocks.NewIProviderService(t)
+	mockOrderStateService := mocks.NewIOrderStateService(t)
+
 	h := HttpServer{
-		providerService: mockProviderService,
+		orderStateService: mockOrderStateService,
 	}
 
 	testCases := []struct {
 		name                 string
-		inHandler            ProviderRequest
+		inHandler            OrderStateRequest
 		wantErr              bool
-		mockCreateProvider   func()
+		mockCreateOrderState func()
 		expectedStatusCode   int
 		expectedResponseBody string
 	}{
 		{
 			name:                 "Invalid JSON",
 			wantErr:              true,
-			mockCreateProvider:   func() {},
+			mockCreateOrderState: func() {},
 			expectedStatusCode:   http.StatusBadRequest,
 			expectedResponseBody: `{"invalid-json":"EOF"}`,
 		},
 		{
 			name: "Invalid request validation",
-			inHandler: ProviderRequest{
-				Name:   "",
-				Origin: "",
+			inHandler: OrderStateRequest{
+				Name: "",
 			},
 			wantErr:              true,
-			mockCreateProvider:   func() {},
+			mockCreateOrderState: func() {},
 			expectedStatusCode:   http.StatusBadRequest,
 			expectedResponseBody: "validation",
 		},
 		{
-			name: "Invalid service provider response",
-			inHandler: ProviderRequest{
-				Name:   "Nissan",
-				Origin: "Japan",
+			name: "Invalid service OrderState response",
+			inHandler: OrderStateRequest{
+				Name: "Created",
 			},
 			wantErr: true,
-			mockCreateProvider: func() {
-				mockProviderService.On("CreateProvider", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("domain.Provider")).
+			mockCreateOrderState: func() {
+				mockOrderStateService.On("CreateOrderState", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("domain.OrderState")).
 					Return(
-						domain.NewProvider(domain.NewProviderData{ID: 1, Name: "TName", Origin: "TOrigin"}),
+						domain.NewOrderState(domain.NewOrderStateData{ID: 1, Name: "Created"}),
 						domain.ErrDbCreationFailed).Once()
 			},
 			expectedStatusCode:   http.StatusInternalServerError,
-			expectedResponseBody: `{"error service provider":"data base creation failed"}`,
+			expectedResponseBody: `{"error service OrderState":"data base creation failed"}`,
 		},
 		{
 			name: "OK",
-			inHandler: ProviderRequest{
-				Name:   "Nissan",
-				Origin: "Japan",
+			inHandler: OrderStateRequest{
+				Name: "In progress",
 			},
 			wantErr: false,
-			mockCreateProvider: func() {
-				mockProviderService.On("CreateProvider", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("domain.Provider")).
-					Return(domain.NewProvider(domain.NewProviderData{
-						ID:     1,
-						Name:   "Toyota",
-						Origin: "Japan",
+			mockCreateOrderState: func() {
+				mockOrderStateService.On("CreateOrderState", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("domain.OrderState")).
+					Return(domain.NewOrderState(domain.NewOrderStateData{
+						ID:   1,
+						Name: "In progress",
 					}),
 						nil).Once()
 			},
 			expectedStatusCode:   http.StatusCreated,
-			expectedResponseBody: `{"id":1,"name":"Toyota","origin":"Japan"}`,
+			expectedResponseBody: `{"id":1,"name":"In progress"}`,
 		},
 	}
 
@@ -98,10 +95,10 @@ func TestCreateProvider(t *testing.T) {
 			if tc.expectedResponseBody == `{"invalid-json":"EOF"}` {
 				body = nil
 			}
-			c.Request = httptest.NewRequest(http.MethodPost, "/provider", bytes.NewBuffer(body))
+			c.Request = httptest.NewRequest(http.MethodPost, "/OrderState", bytes.NewBuffer(body))
 			c.Request.Header.Set("Content-Type", "application/json")
-			tc.mockCreateProvider()
-			h.CreateProvider(c)
+			tc.mockCreateOrderState()
+			h.CreateOrderState(c)
 
 			if tc.wantErr {
 				assert.Equal(t, tc.expectedStatusCode, w.Code)
@@ -110,23 +107,23 @@ func TestCreateProvider(t *testing.T) {
 				require.Equal(t, tc.expectedStatusCode, w.Code)
 				require.Equal(t, tc.expectedResponseBody, w.Body.String())
 			}
-			mockProviderService.AssertExpectations(t)
+			mockOrderStateService.AssertExpectations(t)
 		})
 
 	}
 }
 
-func TestGetProvider(t *testing.T) {
+func TestGetOrderState(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockProviderService := mocks.NewIProviderService(t)
+	mockOrderStateService := mocks.NewIOrderStateService(t)
 	h := HttpServer{
-		providerService: mockProviderService,
+		orderStateService: mockOrderStateService,
 	}
 	testCases := []struct {
 		name               string
 		inHandler          string
 		wantErr            bool
-		mockGetProvider    func()
+		mockGetOrderState  func()
 		expectStatusCode   int
 		expectResponseBody string
 	}{
@@ -134,56 +131,54 @@ func TestGetProvider(t *testing.T) {
 			name:      "OK",
 			inHandler: "?id=3",
 			wantErr:   false,
-			mockGetProvider: func() {
-				mockProviderService.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int")).
-					Return(domain.NewProvider(domain.NewProviderData{
-						ID:     3,
-						Name:   "AZLK",
-						Origin: "USSR",
+			mockGetOrderState: func() {
+				mockOrderStateService.On("GetOrderState", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int")).
+					Return(domain.NewOrderState(domain.NewOrderStateData{
+						ID:   3,
+						Name: "In delivery",
 					}), nil).Once()
 			},
 			expectStatusCode:   http.StatusOK,
-			expectResponseBody: `{"id":3,"name":"AZLK","origin":"USSR"}`,
+			expectResponseBody: `{"id":3,"name":"In delivery"}`,
 		},
 		{
 			name:               "error validation id",
 			inHandler:          "",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
-			expectResponseBody: `invalid-provider-id`,
+			expectResponseBody: `invalid-orderState-id`,
 		},
 		{
 			name:               "invalid id=0",
 			inHandler:          "?id=0",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `{"error":"id lower or equal zero"}`,
 		},
 		{
-			name:               "invalid id<0",
+			name:               "invalid id lower then zero",
 			inHandler:          "?id=-4",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `{"error":"id lower or equal zero"}`,
 		},
 		{
-			name:      "provider not found",
+			name:      "orderState not found",
 			inHandler: "?id=3",
 			wantErr:   true,
-			mockGetProvider: func() {
-				mockProviderService.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int")).
-					Return(domain.NewProvider(domain.NewProviderData{
-						ID:     0,
-						Name:   "",
-						Origin: "",
+			mockGetOrderState: func() {
+				mockOrderStateService.On("GetOrderState", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int")).
+					Return(domain.NewOrderState(domain.NewOrderStateData{
+						ID:   0,
+						Name: "",
 					}),
 						domain.ErrNotFound).Once()
 			},
 			expectStatusCode:   http.StatusNotFound,
-			expectResponseBody: `{"provider":"not found"}`,
+			expectResponseBody: `{"orderState":"not found"}`,
 		},
 	}
 	for _, tc := range testCases {
@@ -191,11 +186,11 @@ func TestGetProvider(t *testing.T) {
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
 
-			url := fmt.Sprintf("/provider%s", tc.inHandler)
+			url := fmt.Sprintf("/OrderState%s", tc.inHandler)
 			c.Request = httptest.NewRequest(http.MethodGet, url, nil)
 			c.Request.Header.Set("Content-Type", "application/json")
-			tc.mockGetProvider()
-			h.GetProvider(c)
+			tc.mockGetOrderState()
+			h.GetOrderState(c)
 
 			if tc.wantErr {
 				require.Equal(t, tc.expectStatusCode, w.Code)
@@ -208,18 +203,18 @@ func TestGetProvider(t *testing.T) {
 	}
 }
 
-func TestGetProviders(t *testing.T) {
+func TestGetOrderStates(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockProviderService := mocks.NewIProviderService(t)
+	mockOrderStateService := mocks.NewIOrderStateService(t)
 	h := HttpServer{
-		providerService: mockProviderService,
+		orderStateService: mockOrderStateService,
 	}
 	testCases := []struct {
 		name               string
 		inHandlerLimit     string
 		inHandlerOffset    string
 		wantErr            bool
-		mockGetProvider    func()
+		mockGetOrderState  func()
 		expectStatusCode   int
 		expectResponseBody string
 	}{
@@ -228,23 +223,23 @@ func TestGetProviders(t *testing.T) {
 			inHandlerLimit:  "limit=10",
 			inHandlerOffset: "offset=0",
 			wantErr:         false,
-			mockGetProvider: func() {
-				mockProviderService.On("GetProviders", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).
-					Return([]domain.Provider{
-						domain.NewProvider(domain.NewProviderData{ID: 1, Name: "AZLK", Origin: "USSR"}),
-						domain.NewProvider(domain.NewProviderData{ID: 2, Name: "VAZ", Origin: "USSR"}),
-						domain.NewProvider(domain.NewProviderData{ID: 3, Name: "GAZ", Origin: "USSR"}),
+			mockGetOrderState: func() {
+				mockOrderStateService.On("GetOrderStates", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).
+					Return([]domain.OrderState{
+						domain.NewOrderState(domain.NewOrderStateData{ID: 1, Name: "Created"}),
+						domain.NewOrderState(domain.NewOrderStateData{ID: 2, Name: "In progress"}),
+						domain.NewOrderState(domain.NewOrderStateData{ID: 3, Name: "In delivery"}),
 					}, nil).Once()
 			},
 			expectStatusCode:   http.StatusOK,
-			expectResponseBody: `[{"id":1,"name":"AZLK","origin":"USSR"},{"id":2,"name":"VAZ","origin":"USSR"},{"id":3,"name":"GAZ","origin":"USSR"}]`,
+			expectResponseBody: `[{"id":1,"name":"Created"},{"id":2,"name":"In progress"},{"id":3,"name":"In delivery"}]`,
 		},
 		{
 			name:               "error get query limit",
 			inHandlerLimit:     "",
 			inHandlerOffset:    "offset=0",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `limit`,
 		},
@@ -253,7 +248,7 @@ func TestGetProviders(t *testing.T) {
 			inHandlerLimit:     "limit=10",
 			inHandlerOffset:    "",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `offset`,
 		},
@@ -262,7 +257,7 @@ func TestGetProviders(t *testing.T) {
 			inHandlerLimit:     "limit=0",
 			inHandlerOffset:    "offset=0",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `limit-must-be-greater-then-zero`,
 		},
@@ -271,7 +266,7 @@ func TestGetProviders(t *testing.T) {
 			inHandlerLimit:     "limit=10",
 			inHandlerOffset:    "offset=-4",
 			wantErr:            true,
-			mockGetProvider:    func() {},
+			mockGetOrderState:  func() {},
 			expectStatusCode:   http.StatusBadRequest,
 			expectResponseBody: `offset-must-be-greater-or-equal-then-zero`,
 		},
@@ -280,12 +275,12 @@ func TestGetProviders(t *testing.T) {
 			inHandlerLimit:  "limit=10",
 			inHandlerOffset: "offset=0",
 			wantErr:         true,
-			mockGetProvider: func() {
-				mockProviderService.On("GetProviders", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).
-					Return([]domain.Provider{domain.NewProvider(domain.NewProviderData{ID: 0, Name: "", Origin: ""})}, domain.ErrNotFound).Once()
+			mockGetOrderState: func() {
+				mockOrderStateService.On("GetOrderStates", mock.AnythingOfType("*gin.Context"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).
+					Return([]domain.OrderState{domain.NewOrderState(domain.NewOrderStateData{ID: 0, Name: ""})}, domain.ErrNotFound).Once()
 			},
 			expectStatusCode:   http.StatusInternalServerError,
-			expectResponseBody: `"error get providers":"not found"`,
+			expectResponseBody: `"error get orderStates":"not found"`,
 		},
 	}
 	for _, tc := range testCases {
@@ -293,11 +288,11 @@ func TestGetProviders(t *testing.T) {
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
 
-			url := fmt.Sprintf("/providers?%s&%s", tc.inHandlerLimit, tc.inHandlerOffset)
+			url := fmt.Sprintf("/OrderStates?%s&%s", tc.inHandlerLimit, tc.inHandlerOffset)
 			c.Request = httptest.NewRequest(http.MethodGet, url, nil)
 			c.Request.Header.Set("Content-Type", "application/json")
-			tc.mockGetProvider()
-			h.GetProviders(c)
+			tc.mockGetOrderState()
+			h.GetOrderStates(c)
 
 			if tc.wantErr {
 				require.Equal(t, tc.expectStatusCode, w.Code)

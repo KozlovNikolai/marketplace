@@ -18,11 +18,11 @@ type NewOrderStateData struct {
 	Name string
 }
 
-func NewOrderState(data NewOrderStateData) (OrderState, error) {
+func NewOrderState(data NewOrderStateData) OrderState {
 	return OrderState{
 		id:   data.ID,
 		name: data.Name,
-	}, nil
+	}
 }
 
 func (o OrderState) ID() int {

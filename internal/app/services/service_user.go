@@ -37,10 +37,7 @@ func (s UserService) CreateUser(ctx context.Context, user domain.User) (domain.U
 		CreatedAt: creatingTime,
 		UpdatedAt: creatingTime,
 	}
-	creatingUser, err := domain.NewUser(newUser)
-	if err != nil {
-		return domain.User{}, err
-	}
+	creatingUser := domain.NewUser(newUser)
 	return s.repo.CreateUser(ctx, creatingUser)
 }
 
