@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS "orders"(
     "total_amount" FLOAT(53) NOT NULL,
     "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
+
+ALTER TABLE users ADD CONSTRAINT unique_login UNIQUE (login);
 ALTER TABLE
     "orders" ADD CONSTRAINT "orders_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
 ALTER TABLE
